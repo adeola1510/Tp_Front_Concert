@@ -1,64 +1,76 @@
-import React from 'react'
-import './Navbar.css'
-import {MdCancel} from 'react-icons/md'
-import {BiCard, BiSearch, BiUser} from 'react-icons/bi'
-import {ShopContext} from '../ShopContext/ShopContext'
-import { useContext } from 'react'
-import { useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { MdCancel } from 'react-icons/md';
+import { BiCard, BiSearch, BiUser } from 'react-icons/bi';
 
-import {Link} from 'react-router-dom'
+import { ShopContext } from '../ShopContext/ShopContext';
+import './Navbar.css';
 
 const Navbar = () => {
+  const { searchProducts, setHeroVisible, itemAmount, email } = useContext(ShopContext);
+  const [query, setQuery] = useState('');
 
-  window.addEventListener ('scroll', function () {
-    const nabar = document.querySelector (".navbar")
-    nabar.classList.toggle ("active", window.scrollY>100)
-  })
+  // Gestion de l'effet scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      const navbar = document.querySelector('.navbar');
+      if (navbar) {
+        navbar.classList.toggle('active', window.scrollY > 100);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-  const {searchProducts, setHeroVisible, itemAmount, email} = useContext(ShopContext);
-  const [query,setQuery] = useState('');
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setQuery(value);
+    searchProducts(value);
+  };
 
-  const handleSearch = (e) =>{
-    setQuery(e.target.value);
-    searchProducts(e.target.value);
-  }
-
-  const handleClick = () =>{
-    setHeroVisible(false)
-  }
-
-  const handleCancelClick = () => {
-    setHeroVisible(true)
-  }
   return (
-    <div>
-      <div className='navbar'>
-        <div className='logo'>
-          <Link to="/"><h2>LogoX</h2></Link>
-          
-        </div>
-        <div className='search'>
-          <BiSearch className='search_icon' />
-          <input type="text"
-          value={query}
-          onChange={handleSearch}
-          onClick={handleClick}
-          placeholder='Search for anything ...' />
-          <MdCancel onClick={handleCancelClick} className='cancel' />
-        </div>
-        <div className='nav_icon_wrapper'>
-          <Link to='/cart'>
-            <div className='nav_cart'>
-            <BiCard className='nav_icon' />
-            <p className='nav_cart_amount'> {itemAmount} </p>
-            </div>
+    <header className="navbar">
+      <div className="navbar__left">
+        <Link to="/" className="navbar__logo">
+          <h2>🎵 LogoX</h2>
+        </Link>
+        <nav className="navbar__menu">
+          <Link to="/list" className="navbar__link">
+            Liste des Artistes
           </Link>
-          <BiUser className='nav_icon'/>
-          <p> {email} </p>
+          <Link to="/ajouter" className="navbar__link">
+            Ajouter un Artiste
+          </Link>
+        </nav>
+      </div>
+
+      <div className="navbar__center">
+        <div className="navbar__search">
+          <BiSearch className="navbar__icon" />
+          <input
+            type="text"
+            value={query}
+            onChange={handleSearch}
+            onClick={() => setHeroVisible(false)}
+            placeholder="Rechercher un artiste..."
+            className="navbar__input"
+          />
+          <MdCancel onClick={() => setHeroVisible(true)} className="navbar__icon cancel" />
         </div>
       </div>
-    </div>
-  )
-}
 
-export default Navbar
+      <div className="navbar__right">
+        <Link to="/cart" className="navbar__cart">
+          <BiCard className="navbar__icon" />
+          <span className="navbar__cart-count">{itemAmount}</span>
+        </Link>
+        <div className="navbar__user">
+          <BiUser className="navbar__icon" />
+          <span>{email}</span>
+        </div>
+      </div>
+    </header>
+  );
+};
+
+export default Navbar;
